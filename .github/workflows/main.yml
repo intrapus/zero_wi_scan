@@ -23,7 +23,7 @@ jobs:
         run: |
           export RUNNER_ALLOW_RUNASROOT="1"
           export AGENT_ALLOW_RUNASROOT="1"
-          sudo echo "<Public_IP> fortify.cyberxdemo.com" | sudo tee -a /etc/hosts
+          sudo echo "44.192.30.135 fortify.cyberxdemo.com" | sudo tee -a /etc/hosts
           echo 'Starting WebInspect Scan'
           curl -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' --data '{"settingsName": "${{ secrets.WI_SETTINGS_NAME }}"}' \
               --url '${{ secrets.WI_API_URL }}'
