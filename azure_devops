@@ -1,0 +1,63 @@
+Write-Host "DevOps VM IP:"
+Invoke-RestMethod http://ipinfo.io/json | Select -exp ip
+
+Write-Host "Modify Hosts File:"
+$file = "$env:windir\System32\drivers\etc\hosts"
+"<PUBLIC_IP> fortify.cyberxdemo.com" | Add-Content -PassThru $file
+Get-Content -Path $file
+gc C:\Windows\System32\drivers\etc\hosts | write-host
+
+Write-Host "Downloading SCA from SSC"
+$BaseUrl = "https://fortify.cyberxdemo.com:8443/ssc/downloads"
+New-Item -ItemType directory -Path c:\_agent_distr
+$url = "$BaseUrl/Fortify_SCA_and_Apps_22.1.0_windows_x64.exe"
+Write-Host $url
+$output = "c:\_agent_distr\Fortify_SCA_and_Apps_22.1.0_windows_x64.exe"
+$wc = New-Object System.Net.WebClient
+$wc.DownloadFile($url, $output)
+
+Write-Host "Downloading fortify.license from SSC"
+$url = "$BaseUrl/fortify.license"
+$output = "c:\_agent_distr\fortify.license"
+Write-Host $url
+$wc = New-Object System.Net.WebClient
+$wc.DownloadFile($url, $output)
+Write-Host "===Downloading Completed==="
+enabled: true
+
+Add enabled: true to the end of this script, manually.
+
+---------------------
+
+Fortify SCA installer path: c:\_agent_distr\Fortify_SCA_and_Apps_22.1.0_windows_x64.exe
+Fortify SCA license file: c:\_agent_distr\fortify.license
+Update Fortify Security Content: Enabled
+Targeted Visual Studio environment: Visual Studio <version number>
+Use the above values for this task.
+
+
+---------------------
+
+
+Write-Host "Post SCA Install Script"
+Write-Host "##vso[task.prependpath]C:\Fortify\bin\"
+Write-Host "##vso[task.prependpath]C:\Program Files\Microsoft Visual Studio\2022\Enterprise\MSBuild\Current\Bin\"
+
+
+
+---------------------
+
+
+Add these options:
+Build ID: richesdotnet
+Enable: Run SCA clean, Enable verbose logging, Enable debug logging
+
+Translations Options:
+Enabled: Run Fortify SCA Translation
+Projects for Fortify SCA analysis: **\*.sln
+Scan Options:
+Scan type: Local
+enable: Upload results to SSC
+Fortify SSC service connection: SSC_Server
+SSC application: enter your application name as it was created in the SSC
+SSC application version: enter your application version as it was created in the SSC
